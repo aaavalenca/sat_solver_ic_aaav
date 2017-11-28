@@ -244,15 +244,21 @@ var variablesFinal = readFormula(fileName).variables;
 // [00, 01, 10, 11], [FF, FV, VF, VV]. Só preciso agora que tenham os zeros na frente de 0 e 1,
 // para que sempre tenha o mesmo número de casas. Essa função pode ajudar:
 // https://stackoverflow.com/questions/2998784/how-to-output-integers-with-leading-zeros-in-javascript
+// Deu certo, essa cacimba!
 function nextAssignment(currentAssignment) {
 
     let newAssignment = [];
 
     for (let i = 0; i < Math.pow(2, variablesFinal.length); i++){
 
-        newAssignment.push(i.toString(2));
+        newAssignment.push(pad(i.toString(2), variablesFinal.length));
 
-        //console.log(newAssignment);
+        function pad(num, size) {
+            var s = i.toString(2)+"";
+            while (s.length < variablesFinal.length) s = "0" + s;
+            return s;
+        }
+
 
     }
 
@@ -267,4 +273,4 @@ function nextAssignment(currentAssignment) {
 }
 
 nextAssignment(variablesFinal);
-console.log(nextAssignment(variablesFinal))
+console.log(nextAssignment(variablesFinal)) // UHUUUU!
