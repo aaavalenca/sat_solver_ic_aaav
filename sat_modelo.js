@@ -238,7 +238,12 @@ var variablesFinal = readFormula(fileName).variables;
 //console.log(variablesFinal);
 
 
-//EM OBRAS
+//Acordei no meio da noite ontem pensando nisso.
+//O que são as possibilidades de V ou F para duas variáveis?
+// São quatro possibilidades, ou seja, 2^2 E, também, a contagem de 0 a 3 em binários
+// [00, 01, 10, 11], [FF, FV, VF, VV]. Só preciso agora que tenham os zeros na frente de 0 e 1,
+// para que sempre tenha o mesmo número de casas. Essa função pode ajudar:
+// https://stackoverflow.com/questions/2998784/how-to-output-integers-with-leading-zeros-in-javascript
 function nextAssignment(currentAssignment) {
 
     let newAssignment = [];
