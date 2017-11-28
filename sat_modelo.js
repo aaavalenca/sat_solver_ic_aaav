@@ -115,8 +115,20 @@ function readFormula(fileName) {
 
 function doSolve(clauses, assignment) {
 
+    //Essa função recebe como entrada o array contendo a atribuição inicial de valores às variáveis da fórmula e outro array contendo as cláusulas.
+
+    // 1) A função deve funcionar em um loop onde, enquanto a fórmula não for satisfeita nem todas as atribuições
+    // 2) tiveram sido testadas, ela verifica se a atribuição atual satisfaz ou não a fórmula e, se não satisfizer,
+    // 3 pega a próxima atribuição de valores e tenta novamente.
+    // 4) Seu resultado é um objeto com dois atributos,
+    // (i) isSat, que guarda um valor booleano indicando se a fórmula foi ou não satisfeita
+    // (ii) satisfyingAssignment, que guarda null se a fórmula não foi satisfeita ou um array contendo a atribuição que a satisfaz, caso contrário.
+
+
 /*    let isSat = false
-  while ((!isSat) && /!* must check whether this is the last assignment or not*!/) {
+  while ((!isSat) && /!* must check whether this is the last assignment or not*!/)
+  ou seja, se chegou a Math.pow(2, currentAssignment.length)
+  {
     // does this assignment satisfy the formula? If so, make isSat true. 
 
     // if not, get the next assignment and try again. 
@@ -230,35 +242,83 @@ function readVariables(qtd){
 
 }
 
+function nextAssignment(currentAssignment) {
+
+    //console.log("INICIANDO NEXT ASSIGNMENT COM ARRAY DE " + currentAssignment.length + " ELEMENTOS");
+
+    //1) Recebemos uma array.
+    let newAssignment = currentAssignment;
+
+   // console.log("ESSE ARRAY 'E: ")
+    //console.log(newAssignment);
+
+    //2) O primeiro elemento dela é F?
+
+
+
+    if(newAssignment[newAssignment.length-1] == false){
+        //2.1) Sim. Então, vira T.
+        newAssignment[newAssignment.length-1] = true;
+
+        //console.log("primeiro elemento desse array era false");
+
+    } else{
+        //console.log("primeiro elemento desse array era true");
+        //2.2) Não. O bit é T. Então, transformamos em F e somamos T ao próximo bit.
+        //newAssignment[newAssignment.length-1] = false;
+
+        let inceptionAssignment = currentAssignment;
+
+        if(inceptionAssignment.length >= 2){
+            inceptionAssignment.pop();
+
+            newAssignment = nextAssignment(inceptionAssignment);
+            newAssignment.push(false);
+        } else{
+            newAssignment[0] = false;
+        };
+
+    };
+
+    return newAssignment;
+
+
+}
+
 var fileName = "./hole1.cnf"; // nome do arquivo de entrada
 readFormula(fileName);
 
 //aqui, peguei o elemento variables do objeto result e transformei numa variável global chamada variablesFinal e vou jogar em nextAssignment
-var variablesFinal = readFormula(fileName).variables;
+
+let variablesFinal = readFormula(fileName).variables;
+
+//console.log("As variaveis sao:")
 //console.log(variablesFinal);
+//nextAssignment(variablesFinal);
+//console.log(nextAssignment(variablesFinal));
 
 
-//Acordei no meio da noite ontem pensando nisso.
+/*
+function nextAssignment(currentAssignment) {
+
 //O que são as possibilidades de V ou F para duas variáveis?
 // São quatro possibilidades, ou seja, 2^2 E, também, a contagem de 0 a 3 em binários
 // [00, 01, 10, 11], [FF, FV, VF, VV]. Só preciso agora que tenham os zeros na frente de 0 e 1,
-// para que sempre tenha o mesmo número de casas. Essa função pode ajudar:
+// para que sempre tenha o mesmo número de casas. Essa função ajuda:
 // https://stackoverflow.com/questions/2998784/how-to-output-integers-with-leading-zeros-in-javascript
-// Deu certo, essa cacimba!
-function nextAssignment(currentAssignment) {
+// Deu erro, 32-bit.
 
     let newAssignment = [];
 
-    for (let i = 0; i < Math.pow(2, variablesFinal.length); i++){
+    for (let i = 0; i < Math.pow(2, currentAssignment.length); i++){
 
-        newAssignment.push(pad(i.toString(2), variablesFinal.length));
+        newAssignment.push(pad(i.toString(2), currentAssignment.length));
 
         function pad(num, size) {
-            var s = i.toString(2)+"";
-            while (s.length < variablesFinal.length) s = "0" + s;
+            let s = i.toString(2)+"";
+            while (s.length < currentAssignment.length) s = "0" + s;
             return s;
         }
-
 
     }
 
@@ -273,4 +333,6 @@ function nextAssignment(currentAssignment) {
 }
 
 nextAssignment(variablesFinal);
-console.log(nextAssignment(variablesFinal)) // UHUUUU!
+console.log(nextAssignment(variablesFinal));
+
+ */
