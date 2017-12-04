@@ -97,7 +97,7 @@ function readFormula(fileName) {
         // Cria um array de falses, com uma quantidade de elementos igual ao número de variáveis.
         let variables = readVariables(qtdVariaveis);
 
-        // o objeto clauses dentro de results passa a ser igual a clauses
+        // o objeto clauses dentro de result passa a ser igual a clauses. variables idem
         result.clauses = clauses;
         result.variables = variables;
 
@@ -113,17 +113,82 @@ function readFormula(fileName) {
 
 }
 
+
+
 function doSolve(clauses, assignment) {
 
-    //Essa função recebe como entrada o array contendo a atribuição inicial de valores às variáveis da fórmula e outro array contendo as cláusulas.
+    //Essa função recebe como entrada o array contendo a atribuição inicial de valores às variáveis da fórmula
+        //readFormula(fileName).variables
+    //e outro array contendo as cláusulas.
+        //readFormula(fileName).clauses
 
-    // 1) A função deve funcionar em um loop onde, enquanto a fórmula não for satisfeita nem todas as atribuições
-    // 2) tiveram sido testadas, ela verifica se a atribuição atual satisfaz ou não a fórmula e, se não satisfizer,
-    // 3 pega a próxima atribuição de valores e tenta novamente.
-    // 4) Seu resultado é um objeto com dois atributos,
-    // (i) isSat, que guarda um valor booleano indicando se a fórmula foi ou não satisfeita
-    // (ii) satisfyingAssignment, que guarda null se a fórmula não foi satisfeita ou um array contendo a atribuição que a satisfaz, caso contrário.
 
+    //let assignment = readFormula(fileName).variables
+    //let clauses = readFormula(fileName).clauses
+
+    let verifyingAssignments = assignment;
+    let verifyingClauses = clauses;
+    // recebe as cláusulas com as atribuicoes, já levando em conta os not
+    let receivingClausesTF = [];
+    let isSat = false;
+
+
+
+    // se esse elemento da clause transformado em texto começar com o sinal de -, multiplicamos clauses por -1,
+    //pegamos o resultado e subtraímos 1. Isto vai dar a posição a que se refere o valor dessa variável.
+
+for(let i = 0; i < verifyingClauses.length; i++) {
+
+    for(let j = 0; j < verifyingAssignments.length; j++){
+
+    if (verifyingClauses[i][j].toString().charAt(0) == "-") {
+
+        verifyingClauses[i][j] = verifyingClauses[i][j] * (-1);
+        //https://stackoverflow.com/questions/12772494/how-to-get-opposite-boolean-value-of-variable-in-javascript
+        verifyingClauses[i][j] = !verifyingAssignments[verifyingClauses[i][j] - 1];
+
+
+    } else {
+
+        verifyingClauses[i][j] = variables[verifyingClauses[i][j] - 1];
+        verifyingClauses[i][j].push(receivingClausesTF);
+
+    };
+
+    };
+};
+
+
+
+    // 1) loop - while a fórmula não for satisfeita nem todas as atribuições
+    // tiveram sido testadas, ela verifica se a atribuição atual satisfaz ou não a fórmula
+
+    while ((!isSat) && /!*&& (quantas vezes next assignment é chamada  <= Math.pow(2, verifyingAssignments.length)*!/){
+
+        //continue testando
+        // 2) se não satisfizer, pega a próxima atribuição de valores e tenta novamente. assignment = nextAssignment(assignment)
+
+        assignment = nextAssignment(assignment);
+
+    }
+
+    let result = {'isSat': isSat, 'satisfyingAssignment': null}
+
+    if (isSat) {
+        result.satisfyingAssignment = assignment;
+
+    }
+
+return result;
+
+
+       //enquanto a formula nao for satisfeita (clausulas sao falsas e as atribuicoes possivels das variaveis nao forem testadas),continue procurando
+
+
+    // 3) Seu resultado é um objeto com dois atributos,
+        // (i) isSat, que guarda um valor booleano indicando se a fórmula foi ou não satisfeita
+        // (ii) satisfyingAssignment, que guarda null se a fórmula não foi satisfeita ou
+            // um array contendo a atribuição que a satisfaz, caso contrário.
 
 /*    let isSat = false
   while ((!isSat) && /!* must check whether this is the last assignment or not*!/)
@@ -157,7 +222,7 @@ function checkProblemSpecification(text, qtdClausulas, qtdVariaveis){
 
     let highestVariableNum = parseInt(clausesSortedDescendant[0], 10);
 
-    // Cláusulas divididas são o antigo string de cláusulas agora partido a partir de cada elemento 0 (final de linha real).
+    // clausesSeparadas são o antigo string de cláusulas agora partido a partir de cada elemento 0 (final de linha real).
     let clausesSeparadas = text.split(" 0");
     // Tem que dar o pop (tirar o último elemento), porque quando dá split,
     // o método considera que há mais um elemento depois do último zero.
@@ -185,7 +250,7 @@ function checkProblemSpecification(text, qtdClausulas, qtdVariaveis){
 
         return specOk;
 
-};
+}
 
 function readClauses (clausulasEmString){
 
@@ -246,7 +311,7 @@ function nextAssignment(currentAssignment) {
 
     //console.log("INICIANDO NEXT ASSIGNMENT COM ARRAY DE " + currentAssignment.length + " ELEMENTOS");
 
-    //1) Recebemos uma array.
+    //1) Recebemos a array contendo as atribuições atuais (o false, false de variablesFalsas).
     let newAssignment = currentAssignment;
 
    // console.log("ESSE ARRAY 'E: ")
@@ -255,17 +320,17 @@ function nextAssignment(currentAssignment) {
     //2) O primeiro elemento dela é F?
 
 
-
+    // se o último elemento da array (newAssignment.length-1),
     if(newAssignment[newAssignment.length-1] == false){
         //2.1) Sim. Então, vira T.
         newAssignment[newAssignment.length-1] = true;
 
-        //console.log("primeiro elemento desse array era false");
+        //console.log("último elemento desse array era false");
 
+        // se não,
     } else{
-        //console.log("primeiro elemento desse array era true");
-        //2.2) Não. O bit é T. Então, transformamos em F e somamos T ao próximo bit.
-        //newAssignment[newAssignment.length-1] = false;
+        //console.log("último elemento desse array era true");
+        //2.2) Não, é T.
 
         let inceptionAssignment = currentAssignment;
 
@@ -290,7 +355,11 @@ readFormula(fileName);
 
 //aqui, peguei o elemento variables do objeto result e transformei numa variável global chamada variablesFinal e vou jogar em nextAssignment
 
+console.log("oi");
 let variablesFinal = readFormula(fileName).variables;
+
+//let clausesFinal = readFormula(fileName).clauses;
+//console.log(doSolve(variablesFinal, clausesFinal));
 
 //console.log("As variaveis sao:")
 //console.log(variablesFinal);
