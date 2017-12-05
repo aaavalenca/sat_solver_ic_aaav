@@ -123,52 +123,74 @@ function doSolve(clauses, assignment) {
         //readFormula(fileName).clauses
 
 
-    //let assignment = readFormula(fileName).variables
-    //let clauses = readFormula(fileName).clauses
-
     let verifyingAssignments = assignment;
     let verifyingClauses = clauses;
-    // recebe as cláusulas com as atribuicoes, já levando em conta os not
-    let receivingClausesTF = [];
+
     let isSat = false;
-
-
 
     // se esse elemento da clause transformado em texto começar com o sinal de -, multiplicamos clauses por -1,
     //pegamos o resultado e subtraímos 1. Isto vai dar a posição a que se refere o valor dessa variável.
 
-for(let i = 0; i < verifyingClauses.length; i++) {
-
-    for(let j = 0; j < verifyingAssignments.length; j++){
-
-    if (verifyingClauses[i][j].toString().charAt(0) == "-") {
-
-        verifyingClauses[i][j] = verifyingClauses[i][j] * (-1);
-        //https://stackoverflow.com/questions/12772494/how-to-get-opposite-boolean-value-of-variable-in-javascript
-        verifyingClauses[i][j] = !verifyingAssignments[verifyingClauses[i][j] - 1];
 
 
-    } else {
+    //console.log(answerToClauses);
 
-        verifyingClauses[i][j] = variables[verifyingClauses[i][j] - 1];
-        verifyingClauses[i][j].push(receivingClausesTF);
-
-    };
-
-    };
-};
-
-
+    //nextAssignment(assignment);
+    //return clausesAssigned;
 
     // 1) loop - while a fórmula não for satisfeita nem todas as atribuições
     // tiveram sido testadas, ela verifica se a atribuição atual satisfaz ou não a fórmula
 
-    while ((!isSat) && /!*&& (quantas vezes next assignment é chamada  <= Math.pow(2, verifyingAssignments.length)*!/){
+    let contador = 1;
 
+    while ((!isSat) && contador <= Math.pow(2, verifyingAssignments.length)){
         //continue testando
         // 2) se não satisfizer, pega a próxima atribuição de valores e tenta novamente. assignment = nextAssignment(assignment)
+        let clausesAssigned = [];
 
-        assignment = nextAssignment(assignment);
+        for (let j = 0; j < clauses.length; j++){
+
+            let clausesAnswer = false;
+
+            for (let i = 0; i < clauses[j].length && !clausesAnswer; i++){
+
+                let temp = clauses[j][i];
+
+                if(temp < 0){
+
+                    temp = temp*(-1);
+                    temp = !assignment[temp-1];
+
+                } else {
+
+                    temp = assignment[temp-1];
+
+                }
+
+                clausesAnswer = temp || clausesAnswer;
+
+            };
+
+            clausesAssigned.push(clausesAnswer);
+        };
+
+        let answerToClauses = true;
+
+        for (let i = 0; i < clausesAssigned.length && answerToClauses; i++){
+
+            answerToClauses = clausesAssigned[i] && answerToClauses;
+
+        }
+
+        isSat = answerToClauses;
+
+        if (!isSat){
+
+            assignment = nextAssignment(assignment);
+
+        }
+
+        contador++;
 
     }
 
@@ -350,16 +372,39 @@ function nextAssignment(currentAssignment) {
 
 }
 
-var fileName = "./hole1.cnf"; // nome do arquivo de entrada
-readFormula(fileName);
+var d = new Date();
+var nInicial = d.getTime();
+
+var fileName = "./hole6.cnf"; // nome do arquivo de entrada
+
+var resultado = readFormula(fileName);
+//console.log(resultado);
+
 
 //aqui, peguei o elemento variables do objeto result e transformei numa variável global chamada variablesFinal e vou jogar em nextAssignment
+let variablesFinal = resultado.variables;
+let clausesFinal = resultado.clauses;
 
-console.log("oi");
-let variablesFinal = readFormula(fileName).variables;
 
-//let clausesFinal = readFormula(fileName).clauses;
-//console.log(doSolve(variablesFinal, clausesFinal));
+
+if (resultado.clauses.length > 0){
+
+    console.log("Procurando soluções satisfatíveis");
+    var resultadoDoSolve = doSolve(clausesFinal, variablesFinal);
+    console.log(resultadoDoSolve);
+
+} else {
+
+    console.log("Não há cláusulas válidas no arquivo " + fileName);
+
+}
+
+console.log(nInicial);
+console.log(d.getTime());
+
+var tempoexec = d.getTime() - nInicial;
+
+console.log("Tempo decorrido " + tempoexec);
 
 //console.log("As variaveis sao:")
 //console.log(variablesFinal);
