@@ -1,14 +1,15 @@
-var fileName = "./hole5.cnf"; // arquivo de entrada
-/*
+var fileName = ""; // arquivo de entrada
+
 exports.solve = function(fileName) {
     let formula = readFormula(fileName)
     let result = doSolve(formula.clauses, formula.variables)
     return result
 
-}*/
+}
 
-let x = doSolve(readFormula(fileName).clauses, readFormula(fileName).variables);
-console.log(x);
+/*let y = readFormula(fileName);
+let x = doSolve(y.clauses, y.variables);
+console.log(x);*/
 
 function readFormula(fileName) {
 
@@ -94,66 +95,63 @@ function doSolve(clauses, assignment) {
         let assignmentsCounter = 1;
         while ((!isSat) && assignmentsCounter <= Math.pow(2, assignment.length)){
 
-            // Um array contendo a resolução do "OU" entre os elementos das cláusulas.
-            let clausesAssigned = [];
+            // A resposta para a resolução do "E" entre cláusulas.
+            let answerToClauses = true;
 
             // O j faz pular a cláusula, de um em um.
-            for (let j = 0; j < clauses.length; j++){
+            /* O i vai pulando de resolução em resolução dos elementos da clause e, caso encontre uma resposta para
+            answerToClauses, cessa o loop. */
+            for (let j = 0; j < clauses.length && answerToClauses; j++){
 
-                let clausesAnswer = false;
+                let clauseAnswer = false;
 
                 // O i percorre os elementos dentro de uma cláusula, cláusula a cláusula.
-                /*O "!clausesAnswer" é uma otimização, previnindo que o loop continue caso verifique-se que a resolução de
-                uma cláusula é falso, pois quando chegar mais na frente para testar o "E", invariavelmente falharia.*/
-                for (let i = 0; i < clauses[j].length && !clausesAnswer; i++){
+                /*O "!clausesAnswer" é uma otimização, previnindo que o loop continue caso verifique-se que a resolução
+                de uma cláusula é false, pois quando chegar mais adiante para testar o "E", invariavelmente falharia.*/
+                for (let i = 0; i < clauses[j].length && !clauseAnswer; i++){
 
-                    let temp = clauses[j][i];
+                    let analysedVariable = clauses[j][i];
 
-                    /*Se a variável for representada por um número negativo, multiplico por -1 (porque, inicialmente, o
-                    sinal de - é apenas para denotar negação (numa versão anterior do programa, em que havia transformado
+                    /* Se a variável for representada por um número negativo, multiplico por -1 (porque, inicialmente, o
+                    sinal de - é apenas para denotar negação (numa versão anterior do solver, em que havia transformado
                     as variáveis em string, eu pedia para fazer um .charAt() na o primeiro caractere e, se encontrasse
                     um "-", dava parseInt e enfim multiplicava por (-1). É fácil entender por que mudei).*/
-                    if(temp < 0){
+                    if(analysedVariable < 0){
 
-                        temp = temp*(-1);
+                        analysedVariable = analysedVariable*(-1);
                         /*Se tiver o "-", é a negação, então negamos o valor atual. Como foi apontado pelo professor em
                         sala de aula, como o array em JS começa em 0, tenho que subtrair 1 para encontrar a atribuição
                         da variável que pareia com o número que representa a variável.*/
-                        temp = !assignment[temp-1];
+                        analysedVariable = !assignment[analysedVariable-1];
 
                     } else {
 
-                        temp = assignment[temp-1];
+                        analysedVariable = assignment[analysedVariable-1];
 
                     }
 
                     // aqui é o "OU". Explico como funciona ali em baixo, na solução para o "E".
-                    clausesAnswer = temp || clausesAnswer;
+                    clauseAnswer = clauseAnswer || analysedVariable;
 
                 };
 
-                // Joga os resultados do "OU" para a clausesAssigned.
-                clausesAssigned.push(clausesAnswer);
+                /* Assim como no "OU", como precisamos apenas resolver de dois em dois, o resultado de uma instância de
+                da cláusula e a próxima instância retroalimenta answerToClauses, até terminar a cláusula. A última
+                alteração fica como a final.*/
+                answerToClauses = answerToClauses && clauseAnswer;
+
+                /*Dei uma otimizada aqui em relação à última versão. Antes, chegava a armazenar os resultados das
+                soluções das cláusulas/variáveis em arrays. Agora, a fórmula se resolve e só joga a solução final
+                para clauseAnswer e, depois, answerToClauses. Um p.s. aqui é que o nome das variáveis pode parecer
+                confuso de cara, mas é simples: 1) clauseAnswer é a resposta à cláusula dada pelo confronto "OU" entre
+                as variáveis; 2) answerToClauses é a resposta a uma cláusula confrontando a outra, "E".*/
 
             };
 
-            // A resposta para a resolução do "E" entre cláusulas.
-            let answerToClauses = true;
-
-            /* O i vai pulando de resolução em resolução dos elementos da clause e, caso encontre uma resposta para
-            answerToClauses, cessa o loop. */
-            for (let i = 0; i < clausesAssigned.length && answerToClauses; i++){
-
-                /*Assim como no "OU", como precisamos apenas resolver de dois em dois, o resultado de uma instância de
-                da cláusula e a próxima instância retroalimenta answerToClauses, até terminar a cláusula. A última alteração
-                fica como a final.*/
-                answerToClauses = clausesAssigned[i] && answerToClauses;
-
-            }
 
             isSat = answerToClauses;
 
-            // Se a resolução do "E" não for satisfatível, passamos para as próximas atribuições com a função nextAssignment.
+            // Se a resolução do "E" não for satisfatível, passamos para as próximas atribuições com nextAssignment.
             if (!isSat){
 
                 assignment = nextAssignment(assignment);
@@ -179,7 +177,7 @@ function doSolve(clauses, assignment) {
     };
 
 
-return result;
+    return result;
 
 
 
@@ -223,7 +221,7 @@ function checkProblemSpecification(text, clausesQuantity, variablesQuantity){
         specOk = false;
     };
 
-        return specOk;
+    return specOk;
 
 }
 
@@ -267,7 +265,7 @@ function readClauses (clausesContinuedString){
 }
 
 function readVariables(variablesQuantity){
-    
+
     // Leitura das variáveis.
     let variablesOfFalses = [];
 
@@ -306,8 +304,8 @@ function nextAssignment(currentAssignment) {
             newAssignment = nextAssignment(inceptionAssignment);
             newAssignment.push(false);
 
-        /* Se formos dando .pop até ficar apenas um true, transformamo-no em false e damos .push de falses cada vez que
-        a funcão é devolvida. Temos novamente um array só de falses*/
+            /* Se formos dando .pop até ficar apenas um true, transformamo-no em false e damos .push de falses cada vez que
+            a funcão é devolvida. Temos novamente um array só de falses*/
         } else {
             newAssignment[0] = false;
         };
@@ -316,17 +314,8 @@ function nextAssignment(currentAssignment) {
 
     return newAssignment;
 
+    /* A princípio, apesar do documento pedir recursividade, tentei criar os assignments possíveis de variáveis fazendo
+    a contagem de 0 a 2ˆnúmero-de-variáveis - 1 em binário, mas me deparei com o problema de variáveis-até-demais, sem
+    contar que nós, alunos, já haviamos sido dissuadidos pelo professor de fazer cálculos desse nível por conta da
+    natureza 32-bit do Javascript. Enfim, funcionou bem melhor assim, de toda forma*/
 }
-
-
-/*
-const sat = require ('./sat_final.js')
-console.log(sat_final.solve(fileName))
-*/
-
-/*
-// Tempo
-solving = solve(fileName);
-console.time(solving);
-console.timeEnd(solving);
-*/
