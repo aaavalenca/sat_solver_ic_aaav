@@ -1,11 +1,15 @@
 var fileName = ""; // arquivo de entrada
 
+console.time("Tempo decorrido");
+
 exports.solve = function(fileName) {
     let formula = readFormula(fileName)
     let result = doSolve(formula.clauses, formula.variables)
     return result
 
 }
+
+console.timeEnd("Tempo decorrido");
 
 /*let y = readFormula(fileName);
 let x = doSolve(y.clauses, y.variables);
